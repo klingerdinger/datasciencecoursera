@@ -1,4 +1,4 @@
-#Tidying the `untidy' Samsung data
+#Tidying the 'untidy' Samsung data
 
 This package reformats the data provided in the directory "UntidyData", and is described fully in "UntidyData/README".
 
