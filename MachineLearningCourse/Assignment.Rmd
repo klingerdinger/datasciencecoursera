@@ -1,0 +1,129 @@
+---
+title: "Machine Learning Assignment"
+author: "kd88"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r global_options, include=FALSE}
+knitr::opts_chunk$set(fig.width=8, fig.height=4, echo=TRUE)
+```
+
+##Introduction
+
+Using devices such as Jawbone Up, Nike FuelBand, and Fitbit it is now possible to collect a large amount of data about personal activity relatively inexpensively. These type of devices are part of the quantified self movement - a group of enthusiasts who take measurements about themselves regularly to improve their health, to find patterns in their behavior, or because they are tech geeks. One thing that people regularly do is quantify how much of a particular activity they do, but they rarely quantify how well they do it. 
+
+The aim of this project is to use data from accelerometers on the belt, forearm, arm, and dumbell of a group of participants in order to predict the manner in which they 6 other participants performed the exercise. The particpants were asked to perform barbell lifts correctly and incorrectly in 5 different ways. The variable that will be used to denote the 5 ways of performing the exercise will be referred to as "classe". More information is available from the website here: http://groupware.les.inf.puc-rio.br/har (see the section on the Weight Lifting Exercise Dataset). 
+
+##Settings
+
+The following libraries and settings have been applied to this analysis.
+
+```{r LoadLibs}
+#---- Libraries
+library(ggplot2)
+library(lattice)
+library(caret)
+library(randomForest)
+#---- Parameters
+set.seed(1988)
+varName   <- c("classe")
+corThresh <- c(0.1)
+partition <- c(0.7)
+nCrossVal <- c(5)
+nTree     <- c(100)
+```
+
+##The dataset
+
+The training and test data are read from the corresponding *.csv files:
+
+```{r LoadData}
+training = read.csv("~/Downloads/pml-training.csv")
+testing  = read.csv("~/Downloads/pml-testing.csv")
+```
+
+The "training"" dataset will later be split into a "main" training dataset and a "validation" dataset. The "testing" dataset contains the data of the 6 participants to be predicted. 
+
+There are `r length(names(training))` variables in the dataset, which have the following names:
+
+```{r CheckData}
+names(training)
+```
+
+The variable "X" simply corresponds to the row number in the file, so this is removed.
+
+```{r RemoveX}
+training <- training[-which(names(training) %in% c("X"))]
+```
+
+There are `r sum(colSums(is.na(training)) != 0)` columns containing missing values, so these are removed.
+
+```{r RemoveNAs}
+training <- training[, colSums(is.na(training)) == 0]
+```
+
+This leaves `r length(names(training))` variables. There are also a further `r sum(is.numeric(unlist(training)))` variables which has non-numeric values. For simplicity, we remove these.
+
+```{r RemoveNonNums}
+numNames <- c("classe")
+for(i in names(training)){
+    if(is.numeric(unlist(training[i]))){
+        numNames <- c(numNames,i)
+    }
+}
+training <- subset(x=training,select=numNames)
+```
+
+There are now `r length(names(training))` variables. To further reduce the number of variables, bi remove variables which are not particularly correlated with the "`r varName`" variable. The threshold "`r corThresh`" has been optimised for reducing the algorithm running time whilst maintaining high accuracy.
+
+```{r RemoveCorrs}
+corrNames <- varName
+corrs <- c()
+for(i in names(training)){
+    if(i != varName){
+        correlation <- cor(as.numeric(unlist(training[varName])),training[i])
+        if(abs(correlation) > corThresh){
+            corrNames <- c(corrNames,i)
+            corrs[i] <- abs(correlation)
+        }
+    }
+}
+training <- subset(x=training,select=corrNames)
+```
+
+There are now only `r length(names(training))` variables. 
+
+##Random forest training
+
+A "validation" dataset is then split from the main "training" dataset, with a partition of `r partition`.
+
+```{r Partition}
+inTrain <- createDataPartition(training$classe, p=partition, list=FALSE)
+validation <- training[-inTrain, ]
+training   <- training[inTrain, ]
+```
+
+A random forest ("rf") is trained using a `r nCrossVal`-fold cross validation ("cv") with `nTree` trees. The parameters have been optimised for algorithmic speed and accuracy.
+
+```{r ApplyRF}
+modFit <- train(classe ~ ., data=training, method="rf", trControl=trainControl(method="cv", nCrossVal), ntree=nTree)
+```
+
+The details of the model fit are given below.
+
+```{r RFprint}
+print(modFit)
+```
+
+##Prediction
+
+A prediction is applied to the "validation" dataset.
+
+```{r ApplyPredict}
+pred <- predict(modFit,validation)
+#---- A function to test the accuracy of the prediction
+myaccuracy = function(values,prediction){sum(prediction==values)/length(values)}
+```
+
+The prediction has an accuracy of `r 100.*myaccuracy(validation$classe,pred)`%, which is sufficient for this study. The prediction for the testing dataset is therefore: `r predict(modFit,testing)`.
