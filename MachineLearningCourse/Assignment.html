@@ -10,7 +10,7 @@
 
 <meta name="author" content="kd88" />
 
-<meta name="date" content="2016-02-23" />
+<meta name="date" content="2016-02-24" />
 
 <title>Machine Learning Assignment</title>
 
@@ -64,10 +64,14 @@ img {
 <div id="header">
 <h1 class="title">Machine Learning Assignment</h1>
 <h4 class="author"><em>kd88</em></h4>
-<h4 class="date"><em>2016-02-23</em></h4>
+<h4 class="date"><em>2016-02-24</em></h4>
 </div>
 
 
+<div id="note" class="section level2">
+<h2>Note</h2>
+<p>In order to view this document with all variables rendered correctly, please download and view the .html in-browser, or alternatively view the automatically generated .pdf.</p>
+</div>
 <div id="introduction" class="section level2">
 <h2>Introduction</h2>
 <p>Using devices such as Jawbone Up, Nike FuelBand, and Fitbit it is now possible to collect a large amount of data about personal activity relatively inexpensively. These type of devices are part of the quantified self movement - a group of enthusiasts who take measurements about themselves regularly to improve their health, to find patterns in their behavior, or because they are tech geeks. One thing that people regularly do is quantify how much of a particular activity they do, but they rarely quantify how well they do it.</p>
@@ -218,7 +222,11 @@ training &lt;- subset(x=training,select=corrNames)</code></pre>
 validation &lt;- training[-inTrain, ]
 training   &lt;- training[inTrain, ]</code></pre>
 <p>A random forest (“rf”) is trained using a 5-fold cross validation (“cv”) with <code>nTree</code> trees. The parameters have been optimised for algorithmic speed and accuracy.</p>
-<pre class="r"><code>modFit &lt;- train(classe ~ ., data=training, method=&quot;rf&quot;, trControl=trainControl(method=&quot;cv&quot;, nCrossVal), ntree=nTree)</code></pre>
+<pre class="r"><code>modFit &lt;- train(classe ~ ., 
+                data=training, 
+                method=&quot;rf&quot;, 
+                trControl=trainControl(method=&quot;cv&quot;, nCrossVal), 
+                ntree=nTree)</code></pre>
 <p>The details of the model fit are given below.</p>
 <pre class="r"><code>print(modFit)</code></pre>
 <pre><code>## Random Forest 

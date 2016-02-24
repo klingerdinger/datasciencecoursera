@@ -1,13 +1,16 @@
 ---
 title: "Machine Learning Assignment"
 author: "kd88"
-date: "`r Sys.Date()`"
+date: '`r Sys.Date()`'
 output: html_document
 ---
 
 ```{r global_options, include=FALSE}
 knitr::opts_chunk$set(fig.width=8, fig.height=4, echo=TRUE)
 ```
+
+##Note
+In order to view this document with all variables rendered correctly, please download and view the .html in-browser, or alternatively view the automatically generated .pdf.
 
 ##Introduction
 
@@ -107,7 +110,11 @@ training   <- training[inTrain, ]
 A random forest ("rf") is trained using a `r nCrossVal`-fold cross validation ("cv") with `nTree` trees. The parameters have been optimised for algorithmic speed and accuracy.
 
 ```{r ApplyRF}
-modFit <- train(classe ~ ., data=training, method="rf", trControl=trainControl(method="cv", nCrossVal), ntree=nTree)
+modFit <- train(classe ~ ., 
+                data=training, 
+                method="rf", 
+                trControl=trainControl(method="cv", nCrossVal), 
+                ntree=nTree)
 ```
 
 The details of the model fit are given below.
