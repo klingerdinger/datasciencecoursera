@@ -200,7 +200,7 @@ for(i in names(training)){
     }
 }
 training &lt;- subset(x=training,select=numNames)</code></pre>
-<p>There are now 56 variables. To further reduce the number of variables, bi remove variables which are not particularly correlated with the “classe” variable. The threshold “0.1” has been optimised for reducing the algorithm running time whilst maintaining high accuracy.</p>
+<p>There are now 56 variables. To further reduce the number of variables, we remove variables which are not highly correlated with the “classe” variable. The threshold “0.1” has been optimised for reducing the algorithm running time whilst maintaining high accuracy.</p>
 <pre class="r"><code>corrNames &lt;- varName
 corrs &lt;- c()
 for(i in names(training)){
@@ -215,8 +215,8 @@ for(i in names(training)){
 training &lt;- subset(x=training,select=corrNames)</code></pre>
 <p>There are now only 16 variables.</p>
 </div>
-<div id="random-forest-training" class="section level2">
-<h2>Random forest training</h2>
+<div id="random-forest-training-and-cross-validation" class="section level2">
+<h2>Random forest training and cross-validation</h2>
 <p>A “validation” dataset is then split from the main “training” dataset, with a partition of 0.7.</p>
 <pre class="r"><code>inTrain &lt;- createDataPartition(training$classe, p=partition, list=FALSE)
 validation &lt;- training[-inTrain, ]
@@ -248,13 +248,14 @@ training   &lt;- training[inTrain, ]</code></pre>
 ## Accuracy was used to select the optimal model using  the largest value.
 ## The final value used for the model was mtry = 2.</code></pre>
 </div>
-<div id="prediction" class="section level2">
-<h2>Prediction</h2>
+<div id="prediction-and-out-of-sample-error" class="section level2">
+<h2>Prediction and out-of-sample error</h2>
 <p>A prediction is applied to the “validation” dataset.</p>
 <pre class="r"><code>pred &lt;- predict(modFit,validation)
 #---- A function to test the accuracy of the prediction
 myaccuracy = function(values,prediction){sum(prediction==values)/length(values)}</code></pre>
-<p>The prediction has an accuracy of 96.346644%, which is sufficient for this study. The prediction for the testing dataset is therefore: B, A, B, A, A, E, D, B, A, A, B, C, B, A, E, E, A, B, B, B.</p>
+<p>The prediction has an accuracy of 96.346644%, which is sufficient for this study. The out-of-sample error is therefore approximately 3.653356%.</p>
+<p>The prediction for the testing dataset is: B, A, B, A, A, E, D, B, A, A, B, C, B, A, E, E, A, B, B, B.</p>
 </div>
 
 

@@ -78,7 +78,7 @@ for(i in names(training)){
 training <- subset(x=training,select=numNames)
 ```
 
-There are now `r length(names(training))` variables. To further reduce the number of variables, bi remove variables which are not particularly correlated with the "`r varName`" variable. The threshold "`r corThresh`" has been optimised for reducing the algorithm running time whilst maintaining high accuracy.
+There are now `r length(names(training))` variables. To further reduce the number of variables, we remove variables which are not highly correlated with the "`r varName`" variable. The threshold "`r corThresh`" has been optimised for reducing the algorithm running time whilst maintaining high accuracy.
 
 ```{r RemoveCorrs}
 corrNames <- varName
@@ -97,7 +97,7 @@ training <- subset(x=training,select=corrNames)
 
 There are now only `r length(names(training))` variables. 
 
-##Random forest training
+##Random forest training and cross-validation
 
 A "validation" dataset is then split from the main "training" dataset, with a partition of `r partition`.
 
@@ -106,6 +106,7 @@ inTrain <- createDataPartition(training$classe, p=partition, list=FALSE)
 validation <- training[-inTrain, ]
 training   <- training[inTrain, ]
 ```
+
 
 A random forest ("rf") is trained using a `r nCrossVal`-fold cross validation ("cv") with `nTree` trees. The parameters have been optimised for algorithmic speed and accuracy.
 
@@ -123,7 +124,7 @@ The details of the model fit are given below.
 print(modFit)
 ```
 
-##Prediction
+##Prediction and out-of-sample error
 
 A prediction is applied to the "validation" dataset.
 
@@ -133,4 +134,6 @@ pred <- predict(modFit,validation)
 myaccuracy = function(values,prediction){sum(prediction==values)/length(values)}
 ```
 
-The prediction has an accuracy of `r 100.*myaccuracy(validation$classe,pred)`%, which is sufficient for this study. The prediction for the testing dataset is therefore: `r predict(modFit,testing)`.
+The prediction has an accuracy of `r 100.*myaccuracy(validation$classe,pred)`%, which is sufficient for this study. The out-of-sample error is therefore approximately `r 100.*(1. - myaccuracy(validation$classe,pred))`%.
+
+The prediction for the testing dataset is: `r predict(modFit,testing)`.
